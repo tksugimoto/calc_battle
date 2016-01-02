@@ -1,16 +1,17 @@
 package actors
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorRef, Props, Terminated}
+import play.libs.Akka
 
 object FieldActor {
-  def props = Props[FieldActor]
-  case class Result(uid: String, isCollect: Boolean)
+  lazy val field = Akka.system().actorOf(Props[FieldActor])
+  def apply() = field
 }
+
+case class Result(isCollect: Boolean)
 object Subscribe
 
 class FieldActor extends Actor {
-  import FieldActor._
-
   var users = Set[ActorRef]()
 
   def receive = {

@@ -1,7 +1,10 @@
-@(message: String)
+@import play.api.mvc.RequestHeader
+@(message: String)(implicit request: RequestHeader)
 
 @main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+<div id="main" data-ws-url="@routes.Application.ws().webSocketURL()">
+  <h1>test</h1>
+  <button type="button" id="testBtn" value="true">Test</button>
+  <div id="testArea"></div>
+</div>
 }
