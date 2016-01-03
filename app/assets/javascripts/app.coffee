@@ -10,4 +10,4 @@ $ ->
 
   $('#testBtn').click (event) ->
     console.log $('#testBtn').val()
-    ws.send msg: $('#testBtn').val()
+    ws.send JSON.stringify { msg: $('#testBtn').val() }
