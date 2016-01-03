@@ -7,9 +7,11 @@ import play.api.libs.json.JsValue
 
 import scala.{Left, Right}
 import scala.concurrent.Future
+import scala.util.Random
 
 import actors.UserActor
-import models.Calc
+
+case class Calc(a: Int, b: Int)
 
 class Application extends Controller {
   val UID = "uid"
@@ -21,7 +23,7 @@ class Application extends Controller {
       counter += 1
       counter.toString
     }
-    Ok(views.html.index(uid, Calc.question)).withSession {
+    Ok(views.html.index(uid, new Calc(random, random))).withSession {
       request.session + (UID -> uid)
     }
   }
@@ -33,4 +35,6 @@ class Application extends Controller {
       case Some(uid) => Right(UserActor.props(uid))
     })
   }
+
+  private def random = (Random.nextInt(9) + 1) * 10 + Random.nextInt(10)
 }
