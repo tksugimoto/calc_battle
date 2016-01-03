@@ -15,8 +15,7 @@
       <h1>Calc Battle</h1>
       <ul id="users"></ul>
       <div id="question">@calc.a + @calc.b</div>
-      <input type="text" name="answer" autofocus />
-      <button type="button" id="testBtn" value="true">Test</button>
-      <div id="testArea"></div>
+      <input id="answer" type="text" data-answer="@(calc.a + calc.b)" autofocus />
+      <div id="result"></div>
     </body>
 </html>

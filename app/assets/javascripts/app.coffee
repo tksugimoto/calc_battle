@@ -6,10 +6,14 @@ $ ->
     console.log message
     switch message.type
       when 'result'
-        $('#testArea').append "<h3>#{message.isCollect}</h3>"
+        $('#result').html "<h3>#{message.isCorrect}</h3>"
       when 'newUser'
         $('#users').append "<li>ユーザ#{message.uid}</li>"
 
-  $('#testBtn').click (event) ->
-    console.log $('#testBtn').val()
-    ws.send JSON.stringify { result: $('#testBtn').val() }
+  $('#answer').keypress (e) ->
+    if e.which is 13
+      input = Number $(this).val()
+      correctAnswer = $(this).data 'answer'
+      isCorrect = input is correctAnswer
+      ws.send JSON.stringify { result: isCorrect }
+      $(this).val ''

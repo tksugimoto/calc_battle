@@ -16,11 +16,11 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   def receive = {
     case js: JsValue => {
       println("Log: UserActor#receive JsValue")
-      (js \ "result").validate[String] map {_.toBoolean} map { field ! Result(uid, _) }
+      (js \ "result").validate[Boolean] map { field ! Result(uid, _) }
     }
-    case Result(uid, isCollect) if sender == field => {
+    case Result(uid, isCorrect) if sender == field => {
       println("Log: UserActor#receive Result")
-      val js = Json.obj("type" -> "result", "uid" -> uid, "isCollect" -> isCollect)
+      val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
       out ! js
     }
     case Subscribe(uid: String) if sender == field => {
