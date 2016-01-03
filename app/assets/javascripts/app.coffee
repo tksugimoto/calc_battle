@@ -8,7 +8,7 @@ $ ->
       when 'result'
         $('#result').html "<h3>#{message.isCorrect}</h3>"
       when 'newUser'
-        $('#users').append "<li>ユーザ#{message.uid}</li>"
+        $('#users').append "<li class=\"list-group-item\">ユーザ#{message.uid}</li>"
 
   $('#answer').keypress (e) ->
     if e.which is 13
