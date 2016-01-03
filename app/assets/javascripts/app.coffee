@@ -5,8 +5,10 @@ $ ->
     message = JSON.parse event.data
     console.log message
     switch message.type
-      when 'message'
+      when 'result'
         $('#testArea').append "<h3>#{message.isCollect}</h3>"
+      when 'newUser'
+        $('#users').append "<li>ユーザ#{message.uid}</li>"
 
   $('#testBtn').click (event) ->
     console.log $('#testBtn').val()

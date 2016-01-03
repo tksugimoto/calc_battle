@@ -9,7 +9,7 @@ object FieldActor {
 }
 
 case class Result(uid: String, isCollect: Boolean)
-object Subscribe
+case class Subscribe(uid: String)
 
 class FieldActor extends Actor {
   var users = Set[ActorRef]()
@@ -20,10 +20,11 @@ class FieldActor extends Actor {
       println(r)
       users map { _ ! r }
     }
-    case Subscribe => {
+    case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")
       users += sender
       context watch sender
+      users map { _ ! Subscribe(uid) }
     }
     case Terminated(user) => {
       println("Log: FieldActor#receive Terminated")
