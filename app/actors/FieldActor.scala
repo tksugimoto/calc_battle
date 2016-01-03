@@ -8,7 +8,7 @@ object FieldActor {
   def apply() = field
 }
 
-case class Result(isCollect: Boolean)
+case class Result(uid: String, isCollect: Boolean)
 object Subscribe
 
 class FieldActor extends Actor {

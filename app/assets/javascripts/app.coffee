@@ -3,13 +3,11 @@ $ ->
   ws = new WebSocket $('#main').data 'ws-url'
   ws.onmessage = (event) ->
     message = JSON.parse event.data
+    console.log message
     switch message.type
       when 'message'
-        console.log message
         $('#testArea').append "<h3>#{message.isCollect}</h3>"
-      else
-        console.log message
 
-  $("#testBtn").click (event) ->
-    console.log $("#testBtn").val
-    ws.send JSON.stringify(msg: $("#testBtn").val)
+  $('#testBtn').click (event) ->
+    console.log $('#testBtn').val()
+    ws.send msg: $('#testBtn').val()
