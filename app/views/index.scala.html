@@ -1,11 +1,20 @@
 @import play.api.mvc.RequestHeader
 @(uid: String)(implicit request: RequestHeader)
 
-@main("Welcome to Play") {
-<div id="main" data-ws-url="@routes.Application.ws().webSocketURL()">
-  <h1>test</h1>
-  <ul id="users"></ul>
-  <button type="button" id="testBtn" value="true">Test</button>
-  <div id="testArea"></div>
-</div>
-}
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Calc Battle</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <script src="@routes.Assets.versioned("javascripts/jquery-1.11.3.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/app.js")" type="text/javascript"></script>
+    </head>
+    <body data-ws-url="@routes.Application.ws().webSocketURL()">
+      <h1>Calc Battle</h1>
+      <ul id="users"></ul>
+      <button type="button" id="testBtn" value="true">Test</button>
+      <div id="testArea"></div>
+    </body>
+</html>

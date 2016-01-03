@@ -1,6 +1,6 @@
 $ ->
-  console.log $('#main').data 'ws-url'
-  ws = new WebSocket $('#main').data 'ws-url'
+  console.log $('body').data 'ws-url'
+  ws = new WebSocket $('body').data 'ws-url'
   ws.onmessage = (event) ->
     message = JSON.parse event.data
     console.log message
