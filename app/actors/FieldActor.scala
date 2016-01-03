@@ -13,6 +13,7 @@ case class Subscribe(uid: String)
 
 class FieldActor extends Actor {
   var users = Set[ActorRef]()
+  var uids: Array[String] = Array()
 
   def receive = {
     case r:Result => {
@@ -23,12 +24,16 @@ class FieldActor extends Actor {
     case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")
       users += sender
+      uids = uids + uid
+      println(uids)
       context watch sender
       users map { _ ! Subscribe(uid) }
     }
     case Terminated(user) => {
       println("Log: FieldActor#receive Terminated")
+      println(user)
       users -= user
+      users map { _ ! Terminated }
     }
   }
 }
