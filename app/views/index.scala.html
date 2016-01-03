@@ -1,5 +1,5 @@
 @import play.api.mvc.RequestHeader
-@(uid: String)(implicit request: RequestHeader)
+@(uid: String, calc: Calc)(implicit request: RequestHeader)
 
 <!DOCTYPE html>
 
@@ -14,6 +14,8 @@
     <body data-ws-url="@routes.Application.ws().webSocketURL()">
       <h1>Calc Battle</h1>
       <ul id="users"></ul>
+      <div id="question">@calc.a + @calc.b</div>
+      <input type="text" name="answer" autofocus />
       <button type="button" id="testBtn" value="true">Test</button>
       <div id="testArea"></div>
     </body>

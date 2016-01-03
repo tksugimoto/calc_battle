@@ -9,6 +9,7 @@ import scala.{Left, Right}
 import scala.concurrent.Future
 
 import actors.UserActor
+import models.Calc
 
 class Application extends Controller {
   val UID = "uid"
@@ -20,8 +21,7 @@ class Application extends Controller {
       counter += 1
       counter.toString
     }
-    println("Log: uid => " + uid)
-    Ok(views.html.index(uid)).withSession {
+    Ok(views.html.index(uid, Calc.question)).withSession {
       request.session + (UID -> uid)
     }
   }
