@@ -19,22 +19,20 @@ class FieldActor extends Actor {
       println("Log: FieldActor#receive Result")
       users.keys map { _ ! r }
     }
-    case Subscribe(uid: String) if !users.values.exists(_ == uid) => {
+    case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")
       println(users)
-      users += (sender -> uid)
+      if(!users.values.exists(_ == uid)) users += (sender -> uid)
       println(users)
       context watch sender
-      users.keys map { _ ! Subscribe(uid) }
+      users.keys map { _ ! UpdateUsers(users.values) }
     }
     case Terminated(user) => {
       println("Log: FieldActor#receive Terminated")
-      users(user)
-      val uid = users(user)
       println(users)
       users -= user
       println(users)
-      users.keys map { _ ! Destroy(uid) }
+      users.keys map { _ ! UpdateUsers(users.values) }
     }
   }
 }

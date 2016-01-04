@@ -7,10 +7,10 @@ $ ->
     switch message.type
       when 'result'
         $('#result').html "<h3>#{message.isCorrect}</h3>"
-      when 'newUser'
-        $('#users').append "<li id=\"uid_#{message.uid}\" class=\"list-group-item\">ユーザ#{message.uid}</li>"
-      when 'destroyUser'
-        $("#users #uid_#{message.uid}").remove()
+      when 'updateUsers'
+        $('#users').empty()
+        for uid in message.uids
+          $('#users').append "<li id=\"uid_#{uid}\" class=\"list-group-item\">ユーザ#{uid}</li>"
       else
         console.log '[Error] unmatch message'
 
