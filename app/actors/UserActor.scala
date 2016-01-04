@@ -7,7 +7,7 @@ object UserActor {
   def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor(), out))
 }
 
-case class UpdateUsers(uids: Iterable[String])
+case class UpdateUsers(user: Set[User])
 
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   override def preStart() = {
@@ -25,9 +25,9 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
       val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
       out ! js
     }
-    case UpdateUsers(uids: Iterable[String]) if sender == field => {
+    case UpdateUsers(users: Set[User]) if sender == field => {
       println("Log: UserActor#receive UpdateUsers")
-      val js = Json.obj("type" -> "updateUsers", "uids" -> uids)
+      val js = Json.obj("type" -> "updateUsers", "uids" -> users.map(_.uid))
       out ! js
     }
     case other => {

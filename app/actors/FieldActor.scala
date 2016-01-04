@@ -10,29 +10,30 @@ object FieldActor {
 
 case class Result(uid: String, isCorrect: Boolean)
 case class Subscribe(uid: String)
+case class User(uid: String, continuationCorrect: Int, userActor: ActorRef)
 
 class FieldActor extends Actor {
-  var users = Map[ActorRef, String]()
+  var users = Set[User]()
 
   def receive = {
     case r:Result => {
       println("Log: FieldActor#receive Result")
-      users.keys map { _ ! r }
+      users map { _.userActor ! r }
     }
     case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")
       println(users)
-      if(!users.values.exists(_ == uid)) users += (sender -> uid)
+      users += new User(uid, 0, sender)
       println(users)
       context watch sender
-      users.keys map { _ ! UpdateUsers(users.values) }
+      users map { _.userActor ! UpdateUsers(users) }
     }
     case Terminated(user) => {
       println("Log: FieldActor#receive Terminated")
       println(users)
-      users -= user
+      users.map(u => if(u.userActor == user) users -= u)
       println(users)
-      users.keys map { _ ! UpdateUsers(users.values) }
+      users map { _.userActor ! UpdateUsers(users) }
     }
   }
 }
