@@ -24,7 +24,7 @@ class FieldActor extends Actor {
     case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")
       users += sender
-      uids = uids + uid
+      uids = uids :+ uid
       println(uids)
       context watch sender
       users map { _ ! Subscribe(uid) }
