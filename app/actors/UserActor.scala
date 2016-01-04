@@ -7,6 +7,8 @@ object UserActor {
   def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor(), out))
 }
 
+case class Destroy(uid: String)
+
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   override def preStart() = {
     println("Log: UserActor#preStart")
@@ -24,9 +26,13 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
       out ! js
     }
     case Subscribe(uid: String) if sender == field => {
-      println("Log: UserActor#receive UserActor")
-      println(uid)
+      println("Log: UserActor#receive Subscribe")
       val js = Json.obj("type" -> "newUser", "uid" -> uid)
+      out ! js
+    }
+    case Destroy(uid: String) if sender == field => {
+      println("Log: UserActor#receive Terminated")
+      val js = Json.obj("type" -> "destroyUser", "uid" -> uid)
       out ! js
     }
     case other => {

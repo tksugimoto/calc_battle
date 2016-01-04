@@ -10,7 +10,9 @@ $ ->
       when 'newUser'
         $('#users').append "<li id=\"uid_#{message.uid}\" class=\"list-group-item\">ユーザ#{message.uid}</li>"
       when 'destroyUser'
-        $("#users #uid_#{message.uid}").remove
+        $("#users #uid_#{message.uid}").remove()
+      else
+        console.log '[Error] unmatch message'
 
   $('#answer').keypress (e) ->
     if e.which is 13

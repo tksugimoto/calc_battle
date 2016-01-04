@@ -12,28 +12,29 @@ case class Result(uid: String, isCorrect: Boolean)
 case class Subscribe(uid: String)
 
 class FieldActor extends Actor {
-  var users = Set[ActorRef]()
-  var uids: Array[String] = Array()
+  var users = Map[ActorRef, String]()
 
   def receive = {
     case r:Result => {
       println("Log: FieldActor#receive Result")
-      println(r)
-      users map { _ ! r }
+      users.keys map { _ ! r }
     }
-    case Subscribe(uid: String) => {
+    case Subscribe(uid: String) if !users.values.exists(_ == uid) => {
       println("Log: FieldActor#receive Subscribe")
-      users += sender
-      uids = uids + uid
-      println(uids)
+      println(users)
+      users += (sender -> uid)
+      println(users)
       context watch sender
-      users map { _ ! Subscribe(uid) }
+      users.keys map { _ ! Subscribe(uid) }
     }
     case Terminated(user) => {
       println("Log: FieldActor#receive Terminated")
-      println(user)
+      users(user)
+      val uid = users(user)
+      println(users)
       users -= user
-      users map { _ ! Terminated }
+      println(users)
+      users.keys map { _ ! Destroy(uid) }
     }
   }
 }
