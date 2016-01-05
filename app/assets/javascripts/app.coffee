@@ -41,3 +41,6 @@ $ ->
       return unless input
       ws.send JSON.stringify { result: input is $(this).attr 'answer' }
       $(this).val ''
+
+  $('#start').click ->
+      ws.send JSON.stringify { start: true }
