@@ -30,7 +30,8 @@ $ ->
 
   $('#answer').keypress (e) ->
     if e.which is 13
-      input = Number $(this).val()
+      input = Number $(this).val().trim()
+      return unless input
       correctAnswer = $(this).data 'answer'
       isCorrect = input is correctAnswer
       ws.send JSON.stringify { result: isCorrect }
