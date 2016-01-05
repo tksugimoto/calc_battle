@@ -5,13 +5,15 @@ $ ->
     console.log message
     switch message.type
       when 'question'
-        question = message.question
-        $('#question').html "#{question.a} + #{question.b}"
-        $('#answer').attr 'answer', question.a + question.b
+        a = message.question.a
+        b = message.question.b
+        $('#question').html "#{a} + #{b}"
+        $('#answer').attr 'answer', a + b
       when 'updateUser'
         for uid, continuationCorrect of message.user
           $("#uid_#{uid}").empty()
           updateStar(uid, continuationCorrect)
+          finishEffect(uid) if message.finish
       when 'updateUsers'
         $('#users').empty()
         for uid, continuationCorrect of message.users
@@ -29,6 +31,9 @@ $ ->
       for i in [1..(5 - continuationCorrect)]
         $("#uid_#{uid}").append "<span class=\"glyphicon glyphicon-star-empty\" aria-hidden=\"true\"></span>"
 
+  finishEffect = (uid) ->
+    $('#answer').attr 'disabled', 'disabled'
+    $("#uid_#{uid}").addClass 'list-group-item-success'
 
   $(document).on 'keypress', '#answer', (e) ->
     if e.which is 13

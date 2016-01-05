@@ -23,7 +23,8 @@ class FieldActor extends Actor {
       val updateUser = user.copy(continuationCorrect = if(isCorrect) user.continuationCorrect + 1 else 0)
       users += updateUser
       val result = updateUser.uid -> updateUser.continuationCorrect
-      users map { _.userActor ! UpdateUser(result) }
+      val finish = updateUser.continuationCorrect >= 5
+      users map { _.userActor ! UpdateUser(result, finish) }
     }
     case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")

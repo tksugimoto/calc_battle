@@ -9,7 +9,7 @@ object UserActor {
 }
 
 case class UpdateUsers(results: Map[String, Int])
-case class UpdateUser(result: (String, Int))
+case class UpdateUser(result: (String, Int), finish: Boolean)
 
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   override def preStart() = {
@@ -28,9 +28,9 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
       val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
       out ! js
     }
-    case UpdateUser(result) if sender == field => {
+    case UpdateUser(result, finish) if sender == field => {
       println("Log: UserActor#receive UpdateUser")
-      val js = Json.obj("type" -> "updateUser", "user" -> Map(result))
+      val js = Json.obj("type" -> "updateUser", "user" -> Map(result), "finish" -> finish)
       out ! js
     }
     case UpdateUsers(results: Map[String, Int]) if sender == field => {
