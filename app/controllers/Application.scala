@@ -23,7 +23,7 @@ class Application extends Controller {
       counter += 1
       counter.toString
     }
-    Ok(views.html.index(uid, new Calc(random, random))).withSession {
+    Ok(views.html.index(uid, Calc(random, random))).withSession {
       request.session + (UID -> uid)
     }
   }

@@ -2,6 +2,7 @@ package actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import play.api.libs.json.{Json, JsValue}
+import scala.util.Random
 
 object UserActor {
   def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor(), out))
@@ -20,6 +21,7 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
     case js: JsValue => {
       println("Log: UserActor#receive JsValue")
       (js \ "result").validate[Boolean] map { field ! Result(uid, _) }
+      out ! Json.obj("type" -> "question", "question" -> Map("a" -> random, "b" -> random))
     }
     case Result(uid, isCorrect) if sender == field => {
       println("Log: UserActor#receive Result")
@@ -40,4 +42,6 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
       println("Log: UserActor#receive other")
     }
   }
+
+  def random = (Random.nextInt(9) + 1) * 10 + Random.nextInt(10)
 }

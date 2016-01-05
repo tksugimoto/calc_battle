@@ -4,13 +4,15 @@ $ ->
     message = JSON.parse event.data
     console.log message
     switch message.type
+      when 'question'
+        question = message.question
+        $('#question').html "#{question.a} + #{question.b}"
+        $('#answer').attr 'answer', question.a + question.b
       when 'updateUser'
-        console.log message.user
         for uid, continuationCorrect of message.user
           $("#uid_#{uid}").empty()
           updateStar(uid, continuationCorrect)
       when 'updateUsers'
-        console.log message.users
         $('#users').empty()
         for uid, continuationCorrect of message.users
           $('#users').append "<li id=\"uid_#{uid}\" class=\"list-group-item\"></li>"
@@ -28,11 +30,9 @@ $ ->
         $("#uid_#{uid}").append "<span class=\"glyphicon glyphicon-star-empty\" aria-hidden=\"true\"></span>"
 
 
-  $('#answer').keypress (e) ->
+  $(document).on 'keypress', '#answer', (e) ->
     if e.which is 13
-      input = Number $(this).val().trim()
+      input = $(this).val().trim()
       return unless input
-      correctAnswer = $(this).data 'answer'
-      isCorrect = input is correctAnswer
-      ws.send JSON.stringify { result: isCorrect }
+      ws.send JSON.stringify { result: input is $(this).attr 'answer' }
       $(this).val ''
