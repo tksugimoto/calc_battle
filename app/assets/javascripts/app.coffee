@@ -25,16 +25,16 @@ $ ->
           """
       when 'updateUsers'
         $('#users').empty()
-        for uid in message.uids
+        console.log message.users
+        for uid, continuationCorrect of message.users
           $('#users').append "<li id=\"uid_#{uid}\" class=\"list-group-item\"></li>"
-          $("#uid_#{uid}").html """
-            ユーザ#{uid}
-            <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-            <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-            <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-            <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-            <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-          """
+          $("#uid_#{uid}").append "ユーザ#{uid} "
+          unless continuationCorrect is 0
+            for i in [1..continuationCorrect]
+              $("#uid_#{uid}").append "<span class=\"glyphicon glyphicon-star\" aria-hidden=\"true\"></span>"
+          unless continuationCorrect is 5
+            for i in [1..(5 - continuationCorrect)]
+              $("#uid_#{uid}").append "<span class=\"glyphicon glyphicon-star-empty\" aria-hidden=\"true\"></span>"
       else
         console.log '[Error] unmatch message'
 

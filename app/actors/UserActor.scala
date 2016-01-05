@@ -7,27 +7,35 @@ object UserActor {
   def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor(), out))
 }
 
-case class UpdateUsers(user: Set[User])
+case class UpdateUsers(user: Iterable[User])
 
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
+  var results = Map[String, Int]()
+
   override def preStart() = {
     println("Log: UserActor#preStart")
     FieldActor() ! Subscribe(uid)
   }
 
   def receive = {
-    case js: JsValue => {
-      println("Log: UserActor#receive JsValue")
-      (js \ "result").validate[Boolean] map { field ! Result(uid, _) }
-    }
     case Result(uid, isCorrect) if sender == field => {
       println("Log: UserActor#receive Result")
       val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
       out ! js
     }
-    case UpdateUsers(users: Set[User]) if sender == field => {
+    case js: JsValue => {
+      println("Log: UserActor#receive JsValue")
+      (js \ "result").validate[Boolean] map { field ! Result(uid, _) }
+    }
+    case UpdateUsers(users: Iterable[User]) if sender == field => {
       println("Log: UserActor#receive UpdateUsers")
-      val js = Json.obj("type" -> "updateUsers", "uids" -> users.map(_.uid))
+      users.map(u => results += (u.uid -> u.continuationCorrect))
+      println(results)
+      val js = Json.obj(
+        "type" -> "updateUsers",
+        "uids" -> users.map(_.uid),
+        "users" -> results
+      )
       out ! js
     }
     case other => {
