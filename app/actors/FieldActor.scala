@@ -13,23 +13,30 @@ case class Subscribe(uid: String)
 case class User(uid: String, continuationCorrect: Int, userActor: ActorRef)
 
 class FieldActor extends Actor {
-  var users = Map[String, User]()
+  var users = Set[User]()
 
   def receive = {
-    case r:Result => {
+    case Result(uid, isCorrect) => {
       println("Log: FieldActor#receive Result")
-      users.values map { _.userActor ! r }
+      val user = (users filter(_.uid == uid)).head
+      users -= user
+      val updateUser = user.copy(continuationCorrect = if(isCorrect) user.continuationCorrect + 1 else 0)
+      users += updateUser
+      val result = updateUser.uid -> updateUser.continuationCorrect
+      users map { _.userActor ! UpdateUser(result) }
     }
     case Subscribe(uid: String) => {
       println("Log: FieldActor#receive Subscribe")
-      users += (uid -> new User(uid, 0, sender))
+      users += User(uid, 0, sender)
       context watch sender
-      users.values map { _.userActor ! UpdateUsers(users.values) }
+      val results = (users map { u => u.uid -> u.continuationCorrect }).toMap[String, Int]
+      users map { _.userActor ! UpdateUsers(results) }
     }
     case Terminated(user) => {
       println("Log: FieldActor#receive Terminated")
-      users.foreach { case(k, v) => if(v.userActor == user) users -= k }
-      users.values map { _.userActor ! UpdateUsers(users.values) }
+      users.map { u => if(u.userActor == user) users -= u }
+      val results = (users map { u => u.uid -> u.continuationCorrect }).toMap[String, Int]
+      users map { _.userActor ! UpdateUsers(results) }
     }
   }
 }
