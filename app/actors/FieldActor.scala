@@ -17,24 +17,21 @@ class FieldActor extends Actor {
 
   def receive = {
     case Result(uid, isCorrect) => {
-      println("Log: FieldActor#receive Result")
       val user = (users filter(_.uid == uid)).head
-      users -= user
       val updateUser = user.copy(continuationCorrect = if(isCorrect) user.continuationCorrect + 1 else 0)
-      users += updateUser
       val result = updateUser.uid -> updateUser.continuationCorrect
       val finish = updateUser.continuationCorrect >= 5
+      users -= user
+      users += updateUser
       users map { _.userActor ! UpdateUser(result, finish) }
     }
     case Subscribe(uid: String) => {
-      println("Log: FieldActor#receive Subscribe")
       users += User(uid, 0, sender)
       context watch sender
       val results = (users map { u => u.uid -> u.continuationCorrect }).toMap[String, Int]
       users map { _.userActor ! UpdateUsers(results) }
     }
     case Terminated(user) => {
-      println("Log: FieldActor#receive Terminated")
       users.map { u => if(u.userActor == user) users -= u }
       val results = (users map { u => u.uid -> u.continuationCorrect }).toMap[String, Int]
       users map { _.userActor ! UpdateUsers(results) }

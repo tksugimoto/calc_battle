@@ -1,5 +1,5 @@
 @import play.api.mvc.RequestHeader
-@(uid: String, calc: Calc)(implicit request: RequestHeader)
+@(uid: String)(implicit request: RequestHeader)
 
 <!DOCTYPE html>
 
@@ -37,7 +37,6 @@
               <a href="#" id="start" class="btn btn-link btn-lg">クリックすると問題が表示されます</a>
             </h1>
             <input id="answer" type="text" class="form-control input-lg" autofocus />
-            <span id="result"></span>
           </div>
       </div>
     </body>

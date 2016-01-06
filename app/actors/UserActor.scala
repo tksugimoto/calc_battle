@@ -13,33 +13,26 @@ case class UpdateUser(result: (String, Int), finish: Boolean)
 
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   override def preStart() = {
-    println("Log: UserActor#preStart")
     FieldActor() ! Subscribe(uid)
   }
 
   def receive = {
     case js: JsValue => {
-      println("Log: UserActor#receive JsValue")
       (js \ "result").validate[Boolean] map { field ! Result(uid, _) }
-      out ! Json.obj("type" -> "question", "question" -> Map("a" -> random, "b" -> random))
+      val question = Json.obj("type" -> "question", "question" -> Map("a" -> random, "b" -> random))
+      out ! question
     }
     case Result(uid, isCorrect) if sender == field => {
-      println("Log: UserActor#receive Result")
       val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
       out ! js
     }
     case UpdateUser(result, finish) if sender == field => {
-      println("Log: UserActor#receive UpdateUser")
       val js = Json.obj("type" -> "updateUser", "user" -> Map(result), "finish" -> finish)
       out ! js
     }
     case UpdateUsers(results: Map[String, Int]) if sender == field => {
-      println("Log: UserActor#receive UpdateUsers")
       val js = Json.obj("type" -> "updateUsers", "users" -> results)
       out ! js
-    }
-    case other => {
-      println("Log: UserActor#receive other")
     }
   }
 

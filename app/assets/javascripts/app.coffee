@@ -2,7 +2,6 @@ $ ->
   ws = new WebSocket $('body').data 'ws-url'
   ws.onmessage = (event) ->
     message = JSON.parse event.data
-    console.log message
     switch message.type
       when 'question'
         a = message.question.a
@@ -20,7 +19,7 @@ $ ->
           $('#users').append "<li id=\"uid_#{uid}\" class=\"list-group-item\"></li>"
           updateStar(uid, continuationCorrect)
       else
-        console.log '[Error] unmatch message'
+        console.log "[Error] unmatch message: #{message}"
 
   updateStar = (uid, continuationCorrect) ->
     $("#uid_#{uid}").append "ユーザ#{uid} "
@@ -36,10 +35,12 @@ $ ->
     $("#uid_#{uid}").addClass 'list-group-item-success'
 
   $(document).on 'keypress', '#answer', (e) ->
-    if e.which is 13
+    ENTER = 13
+    if e.which is ENTER
       input = $(this).val().trim()
+      answer = $(this).attr 'answer'
       return unless input
-      ws.send JSON.stringify { result: input is $(this).attr 'answer' }
+      ws.send JSON.stringify { result: input is answer }
       $(this).val ''
 
   $('#start').click ->
