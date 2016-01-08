@@ -35,22 +35,18 @@ class FieldActor extends Actor {
     case Subscribe(uid: UID) => {
       users += (sender -> User(uid, 0))
       context watch sender
-      val results = users.values.map { user =>
-        (user.uid, user.continuationCorrect)
-      }.toMap[UID, Int]
-
+      
+      val updateUsers = UserActor.UpdateUsers(users.values.toSet)
       users.keys.foreach { userActor =>
-        userActor ! UserActor.UpdateUsers(results)
+        userActor ! updateUsers
       }
     }
     case Terminated(user) => {
       users -= user
-      val results = users.values.map { user =>
-        (user.uid, user.continuationCorrect)
-      }.toMap[UID, Int]
-
+      
+      val updateUsers = UserActor.UpdateUsers(users.values.toSet)
       users.keys.foreach { userActor =>
-        userActor ! UserActor.UpdateUsers(results)
+        userActor ! updateUsers
       }
     }
   }

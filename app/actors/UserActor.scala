@@ -7,7 +7,7 @@ import play.api.libs.json.{Writes, Json, JsValue}
 object UserActor {
   def props(uid: UID)(out: ActorRef) = Props(new UserActor(uid, FieldActor.field, out))
   
-  case class UpdateUsers(results: Map[UID, Int])
+  case class UpdateUsers(users: Set[User])
   case class UpdateUser(user: User, finish: Boolean)
   class UID(val id: String) extends AnyVal
   case class User(uid: UID, continuationCorrect: Int)
@@ -17,12 +17,11 @@ object UserActor {
       Json.obj(user.uid.id -> user.continuationCorrect)
     }
   }
-  implicit val updateUsersWrites = new Writes[Map[UID, Int]] {
-    def writes(users: Map[UID, Int]): JsValue = {
-      Json.toJson(users.map { arg: (UID, Int) =>
-        // UpdateUsersの中身をMapではなくSet[User]等にすればarg._1のようにしなくて良くなります
-        arg._1.id -> arg._2
-      })
+  implicit val usersWrites = new Writes[Set[User]] {
+    def writes(users: Set[User]): JsValue = {
+      Json.toJson(users.map { user: User =>
+        user.uid.id -> user.continuationCorrect
+      }.toMap)
     }
   }
 }
@@ -45,8 +44,8 @@ class UserActor(uid: UID, field: ActorRef, out: ActorRef) extends Actor {
       val js = Json.obj("type" -> "updateUser", "user" -> user, "finish" -> finish)
       out ! js
     }
-    case UpdateUsers(results: Map[UID, Int]) if sender == field => {
-      val js = Json.obj("type" -> "updateUsers", "users" -> results)
+    case UpdateUsers(users) if sender == field => {
+      val js = Json.obj("type" -> "updateUsers", "users" -> users)
       out ! js
     }
   }
