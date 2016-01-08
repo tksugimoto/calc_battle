@@ -20,7 +20,7 @@ class FieldActor extends Actor {
       users.get(sender) match {
         case Some(user) => {
           val updateUser = user.copy(continuationCorrect = if (isCorrect) user.continuationCorrect + 1 else 0)
-          val result = updateUser.uid -> updateUser.continuationCorrect
+          val result = (updateUser.uid, updateUser.continuationCorrect)
           val finish = updateUser.continuationCorrect >= 5
           users = users.updated(sender, updateUser)
 
@@ -37,7 +37,7 @@ class FieldActor extends Actor {
       users += (sender -> User(uid, 0))
       context watch sender
       val results = users.values.map { user =>
-        user.uid -> user.continuationCorrect
+        (user.uid, user.continuationCorrect)
       }.toMap[String, Int]
 
       users.keys.foreach { userActor =>
@@ -47,7 +47,7 @@ class FieldActor extends Actor {
     case Terminated(user) => {
       users -= user
       val results = users.values.map { user =>
-        user.uid -> user.continuationCorrect
+        (user.uid, user.continuationCorrect)
       }.toMap[String, Int]
 
       users.keys.foreach { userActor =>
