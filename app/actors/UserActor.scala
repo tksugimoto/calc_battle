@@ -26,10 +26,6 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
       val question = Json.obj("type" -> "question", "question" -> Question.create())
       out ! question
     }
-    case FieldActor.Result(isCorrect) if sender == field => {
-      val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
-      out ! js
-    }
     case UpdateUser(result, finish) if sender == field => {
       val js = Json.obj("type" -> "updateUser", "user" -> Map(result), "finish" -> finish)
       out ! js
