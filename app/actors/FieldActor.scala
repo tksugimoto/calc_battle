@@ -17,15 +17,21 @@ class FieldActor extends Actor {
 
   def receive = {
     case Result(uid, isCorrect) => {
-      val user = (users filter(_.uid == uid)).head
-      val updateUser = user.copy(continuationCorrect = if(isCorrect) user.continuationCorrect + 1 else 0)
-      val result = updateUser.uid -> updateUser.continuationCorrect
-      val finish = updateUser.continuationCorrect >= 5
-      users -= user
-      users += updateUser
-      
-      users foreach {
-        _.userActor ! UserActor.UpdateUser(result, finish)
+      users.find(_.uid == uid) match {
+        case Some(user) => {
+          val updateUser = user.copy(continuationCorrect = if (isCorrect) user.continuationCorrect + 1 else 0)
+          val result = updateUser.uid -> updateUser.continuationCorrect
+          val finish = updateUser.continuationCorrect >= 5
+          users -= user
+          users += updateUser
+
+          users foreach {
+            _.userActor ! UserActor.UpdateUser(result, finish)
+          }
+        }
+        case None => {
+          // uidが存在しない場合
+        }
       }
     }
     case Subscribe(uid: String) => {
