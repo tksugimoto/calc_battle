@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import play.api._
 import play.api.mvc._
 import play.api.Play.current
@@ -12,12 +14,11 @@ import actors.UserActor
 
 class Application extends Controller {
   val UID = "uid"
-  var counter = 0;
+  val counter: AtomicInteger = new AtomicInteger(0);
 
   def index = Action { implicit request =>
     val uid = request.session.get(UID).getOrElse {
-      counter += 1
-      counter.toString
+      counter.incrementAndGet().toString
     }
     Ok(views.html.index(uid)).withSession {
       request.session + (UID -> uid)
