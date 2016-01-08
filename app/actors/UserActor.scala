@@ -21,12 +21,12 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   def receive = {
     case js: JsValue => {
       (js \ "result").validate[Boolean] foreach {
-        field ! FieldActor.Result(uid, _)
+        field ! FieldActor.Result(_)
       }
       val question = Json.obj("type" -> "question", "question" -> Question.create())
       out ! question
     }
-    case FieldActor.Result(uid, isCorrect) if sender == field => {
+    case FieldActor.Result(isCorrect) if sender == field => {
       val js = Json.obj("type" -> "result", "uid" -> uid, "isCorrect" -> isCorrect)
       out ! js
     }

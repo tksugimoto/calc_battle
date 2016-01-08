@@ -6,53 +6,52 @@ import play.libs.Akka
 object FieldActor {
   lazy val field = Akka.system().actorOf(Props[FieldActor])
   
-  case class Result(uid: String, isCorrect: Boolean)
+  case class Result(isCorrect: Boolean)
   case class Subscribe(uid: String)
-  case class User(uid: String, continuationCorrect: Int, userActor: ActorRef)
+  case class User(uid: String, continuationCorrect: Int)
 }
 
 class FieldActor extends Actor {
   import FieldActor._
-  var users = Set[User]()
+  var users = Map[ActorRef, User]()
 
   def receive = {
-    case Result(uid, isCorrect) => {
-      users.find(_.uid == uid) match {
+    case Result(isCorrect) => {
+      users.get(sender) match {
         case Some(user) => {
           val updateUser = user.copy(continuationCorrect = if (isCorrect) user.continuationCorrect + 1 else 0)
           val result = updateUser.uid -> updateUser.continuationCorrect
           val finish = updateUser.continuationCorrect >= 5
-          users -= user
-          users += updateUser
+          users = users.updated(sender, updateUser)
 
-          users foreach {
-            _.userActor ! UserActor.UpdateUser(result, finish)
+          users.keys.foreach { userActor =>
+            userActor ! UserActor.UpdateUser(result, finish)
           }
         }
         case None => {
-          // uidが存在しない場合
+          // 送信元のActorRefが存在しない場合
         }
       }
     }
     case Subscribe(uid: String) => {
-      users += User(uid, 0, sender)
+      users += (sender -> User(uid, 0))
       context watch sender
-      val results = users.map { u =>
-        u.uid -> u.continuationCorrect
+      val results = users.values.map { user =>
+        user.uid -> user.continuationCorrect
       }.toMap[String, Int]
-      
-      users foreach {
-        _.userActor ! UserActor.UpdateUsers(results)
+
+      users.keys.foreach { userActor =>
+        userActor ! UserActor.UpdateUsers(results)
       }
     }
     case Terminated(user) => {
-      users = users.filter( _.userActor != user )
-      val results = users.map { u =>
-        u.uid -> u.continuationCorrect
+      users -= user
+      val results = users.values.map { user =>
+        user.uid -> user.continuationCorrect
       }.toMap[String, Int]
-      
-      users foreach {
-        _.userActor ! UserActor.UpdateUsers(results)
+
+      users.keys.foreach { userActor =>
+        userActor ! UserActor.UpdateUsers(results)
       }
     }
   }
