@@ -40,9 +40,7 @@ class FieldActor extends Actor {
       }
     }
     case Terminated(user) => {
-      users.foreach {u =>
-        if(u.userActor == user) users -= u
-      }
+      users = users.filter( _.userActor != user )
       val results = users.map { u =>
         u.uid -> u.continuationCorrect
       }.toMap[String, Int]
