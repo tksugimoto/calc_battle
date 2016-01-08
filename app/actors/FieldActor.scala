@@ -20,12 +20,11 @@ class FieldActor extends Actor {
       users.get(sender) match {
         case Some(user) => {
           val updateUser = user.copy(continuationCorrect = if (isCorrect) user.continuationCorrect + 1 else 0)
-          val result = (updateUser.uid, updateUser.continuationCorrect)
           val finish = updateUser.continuationCorrect >= 5
           users = users.updated(sender, updateUser)
 
           users.keys.foreach { userActor =>
-            userActor ! UserActor.UpdateUser(result, finish)
+            userActor ! UserActor.UpdateUser(updateUser, finish)
           }
         }
         case None => {

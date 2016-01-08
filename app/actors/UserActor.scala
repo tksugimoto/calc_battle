@@ -8,14 +8,13 @@ object UserActor {
   def props(uid: UID)(out: ActorRef) = Props(new UserActor(uid, FieldActor.field, out))
   
   case class UpdateUsers(results: Map[UID, Int])
-  case class UpdateUser(result: (UID, Int), finish: Boolean)
+  case class UpdateUser(user: User, finish: Boolean)
   class UID(val id: String) extends AnyVal
   case class User(uid: UID, continuationCorrect: Int)
   
-  implicit val updateUserWrites = new Writes[(UID, Int)] {
-    def writes(arg: (UID, Int)): JsValue = {
-      // UpdateUserの中身をタプルではなくUserにすればarg._1のようにしなくて良くなります
-      Json.obj(arg._1.id -> arg._2)
+  implicit val userWrites = new Writes[User] {
+    def writes(user: User): JsValue = {
+      Json.obj(user.uid.id -> user.continuationCorrect)
     }
   }
   implicit val updateUsersWrites = new Writes[Map[UID, Int]] {
@@ -42,8 +41,8 @@ class UserActor(uid: UID, field: ActorRef, out: ActorRef) extends Actor {
       val question = Json.obj("type" -> "question", "question" -> Question.create())
       out ! question
     }
-    case UpdateUser(result, finish) if sender == field => {
-      val js = Json.obj("type" -> "updateUser", "user" -> Map(result), "finish" -> finish)
+    case UpdateUser(user, finish) if sender == field => {
+      val js = Json.obj("type" -> "updateUser", "user" -> user, "finish" -> finish)
       out ! js
     }
     case UpdateUsers(results: Map[UID, Int]) if sender == field => {
