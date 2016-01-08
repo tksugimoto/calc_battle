@@ -10,6 +10,7 @@ object UserActor {
   case class UpdateUsers(results: Map[UID, Int])
   case class UpdateUser(result: (UID, Int), finish: Boolean)
   class UID(val id: String) extends AnyVal
+  case class User(uid: UID, continuationCorrect: Int)
   
   implicit val updateUserWrites = new Writes[(UID, Int)] {
     def writes(arg: (UID, Int)): JsValue = {

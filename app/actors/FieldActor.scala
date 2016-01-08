@@ -9,7 +9,6 @@ object FieldActor {
   
   case class Result(isCorrect: Boolean)
   case class Subscribe(uid: UID)
-  case class User(uid: UID, continuationCorrect: Int)
 }
 
 class FieldActor extends Actor {
