@@ -6,13 +6,14 @@ import play.libs.Akka
 object FieldActor {
   lazy val field = Akka.system().actorOf(Props[FieldActor])
   def apply() = field
+  
+  case class Result(uid: String, isCorrect: Boolean)
+  case class Subscribe(uid: String)
+  case class User(uid: String, continuationCorrect: Int, userActor: ActorRef)
 }
 
-case class Result(uid: String, isCorrect: Boolean)
-case class Subscribe(uid: String)
-case class User(uid: String, continuationCorrect: Int, userActor: ActorRef)
-
 class FieldActor extends Actor {
+  import FieldActor._
   var users = Set[User]()
 
   def receive = {
