@@ -5,7 +5,7 @@ import play.api.libs.json.{Json, JsValue}
 import scala.util.Random
 
 object UserActor {
-  def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor(), out))
+  def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor.field, out))
   
   case class UpdateUsers(results: Map[String, Int])
   case class UpdateUser(result: (String, Int), finish: Boolean)
@@ -15,7 +15,7 @@ object UserActor {
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
   import UserActor._
   override def preStart() = {
-    FieldActor() ! FieldActor.Subscribe(uid)
+    FieldActor.field ! FieldActor.Subscribe(uid)
   }
 
   def receive = {
