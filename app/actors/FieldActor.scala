@@ -25,7 +25,7 @@ class FieldActor extends Actor {
       users += updateUser
       
       users foreach {
-        _.userActor ! UpdateUser(result, finish)
+        _.userActor ! UserActor.UpdateUser(result, finish)
       }
     }
     case Subscribe(uid: String) => {
@@ -36,7 +36,7 @@ class FieldActor extends Actor {
       }.toMap[String, Int]
       
       users foreach {
-        _.userActor ! UpdateUsers(results)
+        _.userActor ! UserActor.UpdateUsers(results)
       }
     }
     case Terminated(user) => {
@@ -46,7 +46,7 @@ class FieldActor extends Actor {
       }.toMap[String, Int]
       
       users foreach {
-        _.userActor ! UpdateUsers(results)
+        _.userActor ! UserActor.UpdateUsers(results)
       }
     }
   }

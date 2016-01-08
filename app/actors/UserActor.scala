@@ -6,12 +6,14 @@ import scala.util.Random
 
 object UserActor {
   def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor(), out))
+  
+  case class UpdateUsers(results: Map[String, Int])
+  case class UpdateUser(result: (String, Int), finish: Boolean)
 }
 
-case class UpdateUsers(results: Map[String, Int])
-case class UpdateUser(result: (String, Int), finish: Boolean)
 
 class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
+  import UserActor._
   override def preStart() = {
     FieldActor() ! Subscribe(uid)
   }
