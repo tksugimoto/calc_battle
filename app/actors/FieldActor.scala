@@ -24,7 +24,7 @@ class FieldActor extends Actor {
       users -= user
       users += updateUser
       
-      users map {
+      users foreach {
         _.userActor ! UpdateUser(result, finish)
       }
     }
@@ -35,19 +35,19 @@ class FieldActor extends Actor {
         u.uid -> u.continuationCorrect
       }.toMap[String, Int]
       
-      users map {
+      users foreach {
         _.userActor ! UpdateUsers(results)
       }
     }
     case Terminated(user) => {
-      users.map {u =>
+      users.foreach {u =>
         if(u.userActor == user) users -= u
       }
       val results = users.map { u =>
         u.uid -> u.continuationCorrect
       }.toMap[String, Int]
       
-      users map {
+      users foreach {
         _.userActor ! UpdateUsers(results)
       }
     }
