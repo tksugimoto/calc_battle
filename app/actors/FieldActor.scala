@@ -2,13 +2,14 @@ package actors
 
 import akka.actor.{Actor, ActorRef, Props, Terminated}
 import play.libs.Akka
+import UserActor._
 
 object FieldActor {
   lazy val field = Akka.system().actorOf(Props[FieldActor])
   
   case class Result(isCorrect: Boolean)
-  case class Subscribe(uid: String)
-  case class User(uid: String, continuationCorrect: Int)
+  case class Subscribe(uid: UID)
+  case class User(uid: UID, continuationCorrect: Int)
 }
 
 class FieldActor extends Actor {
@@ -33,12 +34,12 @@ class FieldActor extends Actor {
         }
       }
     }
-    case Subscribe(uid: String) => {
+    case Subscribe(uid: UID) => {
       users += (sender -> User(uid, 0))
       context watch sender
       val results = users.values.map { user =>
         (user.uid, user.continuationCorrect)
-      }.toMap[String, Int]
+      }.toMap[UID, Int]
 
       users.keys.foreach { userActor =>
         userActor ! UserActor.UpdateUsers(results)
@@ -48,7 +49,7 @@ class FieldActor extends Actor {
       users -= user
       val results = users.values.map { user =>
         (user.uid, user.continuationCorrect)
-      }.toMap[String, Int]
+      }.toMap[UID, Int]
 
       users.keys.foreach { userActor =>
         userActor ! UserActor.UpdateUsers(results)

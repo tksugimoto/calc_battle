@@ -2,18 +2,33 @@ package actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import models.Question
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{Writes, Json, JsValue}
 
 object UserActor {
-  def props(uid: String)(out: ActorRef) = Props(new UserActor(uid, FieldActor.field, out))
+  def props(uid: UID)(out: ActorRef) = Props(new UserActor(uid, FieldActor.field, out))
   
-  case class UpdateUsers(results: Map[String, Int])
-  case class UpdateUser(result: (String, Int), finish: Boolean)
+  case class UpdateUsers(results: Map[UID, Int])
+  case class UpdateUser(result: (UID, Int), finish: Boolean)
+  class UID(val id: String) extends AnyVal
+  
+  implicit val updateUserWrites = new Writes[(UID, Int)] {
+    def writes(arg: (UID, Int)): JsValue = {
+      // UpdateUserの中身をタプルではなくUserにすればarg._1のようにしなくて良くなります
+      Json.obj(arg._1.id -> arg._2)
+    }
+  }
+  implicit val updateUsersWrites = new Writes[Map[UID, Int]] {
+    def writes(users: Map[UID, Int]): JsValue = {
+      Json.toJson(users.map { arg: (UID, Int) =>
+        // UpdateUsersの中身をMapではなくSet[User]等にすればarg._1のようにしなくて良くなります
+        arg._1.id -> arg._2
+      })
+    }
+  }
 }
 
-
-class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
-  import UserActor._
+import UserActor._
+class UserActor(uid: UID, field: ActorRef, out: ActorRef) extends Actor {
   override def preStart() = {
     FieldActor.field ! FieldActor.Subscribe(uid)
   }
@@ -30,7 +45,7 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
       val js = Json.obj("type" -> "updateUser", "user" -> Map(result), "finish" -> finish)
       out ! js
     }
-    case UpdateUsers(results: Map[String, Int]) if sender == field => {
+    case UpdateUsers(results: Map[UID, Int]) if sender == field => {
       val js = Json.obj("type" -> "updateUsers", "users" -> results)
       out ! js
     }
