@@ -40,5 +40,5 @@ class UserActor(uid: String, field: ActorRef, out: ActorRef) extends Actor {
     }
   }
 
-  def random() = (Random.nextInt(9) + 1) * 10 + Random.nextInt(10)
+  def random() = Random.nextInt(90) + 10
 }
